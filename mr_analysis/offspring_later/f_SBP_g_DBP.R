@@ -18,21 +18,11 @@ bp$dbp_auto<-rowMeans(bp[,c("dbp_auto1","dbp_auto2")],na.rm = TRUE)
 bp$dbp_manual<-rowMeans(bp[,c("dbp_manual1","dbp_manual2")],na.rm = TRUE)
 ##manual sphygmomanometer was used if digital monitor could not be employed
 bp$sbp<-bp$sbp_auto
-for (i in 1:502616){
-  if(!is.na(bp$sbp_manual[i])){
-    bp$sbp[i]<-bp$sbp_manual[i]
-    i<-i+1
-  }
-}
-
+sbpix<-which(!is.na(bp$sbp_manual))
+bp$sbp[sbpix]<-bp$sbp_manual[sbpix]
 bp$dbp<-bp$dbp_auto
-for (i in 1:502616){
-  if(!is.na(bp$dbp_manual[i])){
-    bp$dbp[i]<-bp$dbp_manual[i]
-    i<-i+1
-  }
-}
-
+dbpix<-which(!is.na(bp$dbp_manual))
+bp$dbp[dbpix]<-bp$dbp_manual[dbpix]
 summary(bp)
 
 #import previous clean dataset

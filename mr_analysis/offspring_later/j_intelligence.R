@@ -29,26 +29,12 @@ summary(iq_use)
 #Part 1
 #If participants took the VNR test at multiple time points, only the earliest was used (PMID 29326435)
 iq_use$iq<-iq_use$iq_online
-for (i in 1:337104){
-  if(!is.na(iq_use$iq_t3[i])){
-    iq_use$iq[i]<-iq_use$iq_t3[i]
-    i<-i+1
-  }
-}
-
-for (i in 1:337104){
-  if(!is.na(iq_use$iq_t2[i])){
-    iq_use$iq[i]<-iq_use$iq_t2[i]
-    i<-i+1
-  }
-}
-
-for (i in 1:337104){
-  if(!is.na(iq_use$iq_t1[i])){
-    iq_use$iq[i]<-iq_use$iq_t1[i]
-    i<-i+1
-  }
-}
+iq3ix<-which(!is.na(iq_use$iq_t3))
+iq_use$iq[iq3ix]<-iq_use$iq_t3[iq3ix]
+iq2ix<-which(!is.na(iq_use$iq_t2))
+iq_use$iq[iq2ix]<-iq_use$iq_t2[iq2ix]
+iq1ix<-which(!is.na(iq_use$iq_t1))
+iq_use$iq[iq1ix]<-iq_use$iq_t1[iq1ix]
 
 #mean & SD by sex
 summary(iq_use)

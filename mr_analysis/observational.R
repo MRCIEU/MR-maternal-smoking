@@ -33,19 +33,11 @@ bp$dbp_auto<-rowMeans(bp[,c("dbp_auto1","dbp_auto2")],na.rm = TRUE)
 bp$dbp_manual<-rowMeans(bp[,c("dbp_manual1","dbp_manual2")],na.rm = TRUE)
 ##manual sphygmomanometer was used if digital monitor could not be employed
 bp$sbp<-bp$sbp_auto
-for (i in 1:502616){
-  if(!is.na(bp$sbp_manual[i])){
-    bp$sbp[i]<-bp$sbp_manual[i]
-    i<-i+1
-  }
-}
+sbpix<-which(!is.na(bp$sbp_manual))
+bp$sbp[sbpix]<-bp$sbp_manual[sbpix]
 bp$dbp<-bp$dbp_auto
-for (i in 1:502616){
-  if(!is.na(bp$dbp_manual[i])){
-    bp$dbp[i]<-bp$dbp_manual[i]
-    i<-i+1
-  }
-}
+dbpix<-which(!is.na(bp$dbp_manual))
+bp$dbp[dbpix]<-bp$dbp_manual[dbpix]      
 bp<-bp[c(1,14,15)]
 #id, menarche
 menarche<-read.csv(paste(Sys.getenv('Mydata'),'menarche.csv',sep=''), sep=',')
@@ -82,24 +74,12 @@ edu<-edu[c(1,2,12)]
 iq<-read.csv(paste(Sys.getenv('Mydata'),'iq.csv',sep=''), sep=',')
 colnames(iq)<-c("app16729","iq_t1","iq_t2","iq_t3","iq_online")
 iq$iq<-iq$iq_online
-for (i in 1:337104){
-  if(!is.na(iq$iq_t3[i])){
-    iq$iq[i]<-iq$iq_t3[i]
-    i<-i+1
-  }
-}
-for (i in 1:337104){
-  if(!is.na(iq$iq_t2[i])){
-    iq$iq[i]<-iq$iq_t2[i]
-    i<-i+1
-  }
-}
-for (i in 1:337104){
-  if(!is.na(iq$iq_t1[i])){
-    iq$iq[i]<-iq$iq_t1[i]
-    i<-i+1
-  }
-}
+iq3ix<-which(!is.na(iq$iq_t3))
+iq$iq[iq3ix]<-iq$iq_t3[iq3ix]
+iq2ix<-which(!is.na(iq$iq_t2))
+iq$iq[iq2ix]<-iq$iq_t2[iq2ix]
+iq1ix<-which(!is.na(iq$iq_t1))
+iq$iq[iq1ix]<-iq$iq_t1[iq1ix]
 iq<-iq[c(1,6)]
 #id, depression
 depression_ques<-read.csv(paste(Sys.getenv('Mydata'),'depression.csv',sep=''), sep=',')
@@ -115,9 +95,9 @@ depression$psych1[depression$psych1<0]<-NA
 depression$psych2[depression$psych2<0]<-NA
 depression$psych3[depression$psych3<0]<-NA
 depression$diag_sum<-rowSums(depression[,c(2:9)],na.rm=TRUE)
-depression$diag_sum[is.na(depression$gp1) & is.na(depression$gp1) & is.na(depression$gp3) & is.na(depression$psych1) & is.na(depression$psych2) & is.na(depression$psych3) & is.na(depression$depression_diag_main) & is.na(depression$depression_diag_second)]<-NA
+depression$diag_sum[is.na(depression$gp1) & is.na(depression$gp2) & is.na(depression$gp3) & is.na(depression$psych1) & is.na(depression$psych2) & is.na(depression$psych3) & is.na(depression$depression_diag_main) & is.na(depression$depression_diag_second)]<-NA
 depression$diag_sum[depression$diag_sum>0]<-1
-depression<-depression[c(1,10)]
+depression<-depression[c("app16729","diag_sum")]
 #id, happiness
 well<-read.csv(paste(Sys.getenv('Mydata'),'wellbeing.csv',sep=''), sep=',')
 head(well)

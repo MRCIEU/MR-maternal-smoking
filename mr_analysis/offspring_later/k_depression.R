@@ -30,10 +30,10 @@ depression$psych3[depression$psych3<0]<-NA
 
 #code 0 means no depression, 1 means any depression in any question/assessment/ICD-code
 depression$diag_sum<-rowSums(depression[,c(2:9)],na.rm=TRUE)
-depression$diag_sum[is.na(depression$gp1) & is.na(depression$gp1) & is.na(depression$gp3) & is.na(depression$psych1) & is.na(depression$psych2) & is.na(depression$psych3) & is.na(depression$depression_diag_main) & is.na(depression$depression_diag_second)]<-NA
+depression$diag_sum[is.na(depression$gp1) & is.na(depression$gp2) & is.na(depression$gp3) & is.na(depression$psych1) & is.na(depression$psych2) & is.na(depression$psych3) & is.na(depression$depression_diag_main) & is.na(depression$depression_diag_second)]<-NA
 depression$diag_sum[depression$diag_sum>0]<-1
 
-depression<-depression[c(1,10)]
+depression<-depression[c("app16729","diag_sum")]
 
 ###################################################################################################
 #import previous clean dataset
