@@ -9,16 +9,26 @@ rm(list = ls())
 
 #package
 require(ggplot2)
+require(stringr)
 
 pd<-position_dodge(0.5)
 
 #height
 #ever smoker vs never smoker in UKBB participants
-height<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/height_ever_never.csv',sep=''), sep=',')
+height<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/height_ever_never.csv',sep=''), sep=',',header = FALSE)
 head(height)
+colnames(height)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+height$supp[substring(height$model,1,8)=="mumsmoke"]<-2
+height$supp[substring(height$model,1,11)=="mumnonsmoke"]<-1
+##G1 ever smoker=1, G1 never smoker=3, G1 all participants=5
+height$exposure[str_sub(height$model,-9,-1)=="childever"]<-1
+height$exposure[str_sub(height$model,-10,-1)=="childnever"]<-3
+height$exposure[str_sub(height$model,-8,-1)=="childall"]<-5
 
-a<-ggplot(height,aes(x=exposure,y=height,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=height-1.96*se,ymax=height+1.96*se),width=0.1,position=pd,size=1)+
+a<-ggplot(height,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("A. mean difference in height (cm)")+
@@ -42,11 +52,21 @@ a<-ggplot(height,aes(x=exposure,y=height,shape=factor(supp),colour=factor(supp))
 a
 ############################################################################################################
 #bmi
-bmi<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/bmi.csv',sep=''), sep=',')
+bmi<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/bmi.csv',sep=''), sep=',',header = FALSE)
 head(bmi)
+colnames(bmi)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+bmi$supp[substring(bmi$model,1,8)=="mumsmoke"]<-2
+bmi$supp[substring(bmi$model,1,11)=="mumnonsmoke"]<-1
+##G1 current smoker=1, G1 former smoker=3, G1 never smoker=5, G1 all participants=7
+bmi$exposure[str_sub(bmi$model,-7,-1)=="current"]<-1
+bmi$exposure[str_sub(bmi$model,-6,-1)=="former"]<-3
+bmi$exposure[str_sub(bmi$model,-5,-1)=="never"]<-5
+bmi$exposure[str_sub(bmi$model,-3,-1)=="all"]<-7
 
-b<-ggplot(bmi,aes(x=exposure,y=bmi,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=bmi-1.96*se,ymax=bmi+1.96*se),width=0.1,position=pd,size=1)+
+b<-ggplot(bmi,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("B. mean difference in BMI (kg/m2)")+
@@ -71,11 +91,21 @@ b<-ggplot(bmi,aes(x=exposure,y=bmi,shape=factor(supp),colour=factor(supp)))+
 b
 ############################################################################################################
 #FEV1
-fev1<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/fev1_best.csv',sep=''), sep=',')
+fev1<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/fev1_best.csv',sep=''), sep=',',header = FALSE)
 head(fev1)
+colnames(fev1)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+fev1$supp[substring(fev1$model,1,8)=="mumsmoke"]<-2
+fev1$supp[substring(fev1$model,1,11)=="mumnonsmoke"]<-1
+##G1 current smoker=1, G1 former smoker=3, G1 never smoker=5, G1 all participants=7
+fev1$exposure[str_sub(fev1$model,-7,-1)=="current"]<-1
+fev1$exposure[str_sub(fev1$model,-6,-1)=="former"]<-3
+fev1$exposure[str_sub(fev1$model,-5,-1)=="never"]<-5
+fev1$exposure[str_sub(fev1$model,-3,-1)=="all"]<-7
 
-c<-ggplot(fev1,aes(x=exposure,y=fev1,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=fev1-1.96*se,ymax=fev1+1.96*se),width=0.1,position=pd,size=1)+
+c<-ggplot(fev1,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("C. mean difference in FEV1 (L)")+
@@ -99,11 +129,21 @@ c<-ggplot(fev1,aes(x=exposure,y=fev1,shape=factor(supp),colour=factor(supp)))+
 c
 ############################################################################################################
 #FVC
-fvc<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/fvc_best.csv',sep=''), sep=',')
+fvc<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/fvc_best.csv',sep=''), sep=',',header = FALSE)
 head(fvc)
+colnames(fvc)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+fvc$supp[substring(fvc$model,1,8)=="mumsmoke"]<-2
+fvc$supp[substring(fvc$model,1,11)=="mumnonsmoke"]<-1
+##G1 current smoker=1, G1 former smoker=3, G1 never smoker=5, G1 all participants=7
+fvc$exposure[str_sub(fvc$model,-7,-1)=="current"]<-1
+fvc$exposure[str_sub(fvc$model,-6,-1)=="former"]<-3
+fvc$exposure[str_sub(fvc$model,-5,-1)=="never"]<-5
+fvc$exposure[str_sub(fvc$model,-3,-1)=="all"]<-7
 
-d<-ggplot(fvc,aes(x=exposure,y=fvc,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=fvc-1.96*se,ymax=fvc+1.96*se),width=0.1,position=pd,size=1)+
+d<-ggplot(fvc,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("D. mean difference in FVC (L)")+
@@ -127,11 +167,20 @@ d<-ggplot(fvc,aes(x=exposure,y=fvc,shape=factor(supp),colour=factor(supp)))+
 d
 ############################################################################################################
 #asthma
-asthma<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/asthma_ever_never.csv',sep=''), sep=',')
+asthma<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/asthma_ever_never.csv',sep=''), sep=',',header = FALSE)
 head(asthma)
+colnames(asthma)<-c("model","logor","se","loglci","loguci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+asthma$supp[substring(asthma$model,1,8)=="mumsmoke"]<-2
+asthma$supp[substring(asthma$model,1,11)=="mumnonsmoke"]<-1
+##G1 ever smoker=1, G1 never smoker=3, G1 all participants=5
+asthma$exposure[str_sub(asthma$model,-9,-1)=="childever"]<-1
+asthma$exposure[str_sub(asthma$model,-10,-1)=="childnever"]<-3
+asthma$exposure[str_sub(asthma$model,-8,-1)=="childall"]<-5
 
-e<-ggplot(asthma,aes(x=exposure,y=exp(asthma),shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=exp(asthma-1.96*se),ymax=exp(asthma+1.96*se)),width=0.1,position=pd,size=1)+
+e<-ggplot(asthma,aes(x=exposure,y=exp(logor),shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=exp(loglci),ymax=exp(loguci)),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("E. Odds ratio of asthma")+
@@ -154,11 +203,21 @@ e<-ggplot(asthma,aes(x=exposure,y=exp(asthma),shape=factor(supp),colour=factor(s
 e
 ############################################################################################################
 #SBP
-sbp<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/sbp.csv',sep=''), sep=',')
+sbp<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/sbp.csv',sep=''), sep=',',header = FALSE)
 head(sbp)
+colnames(sbp)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+sbp$supp[substring(sbp$model,1,8)=="mumsmoke"]<-2
+sbp$supp[substring(sbp$model,1,11)=="mumnonsmoke"]<-1
+##G1 current smoker=1, G1 former smoker=3, G1 never smoker=5, G1 all participants=7
+sbp$exposure[str_sub(sbp$model,-7,-1)=="current"]<-1
+sbp$exposure[str_sub(sbp$model,-6,-1)=="former"]<-3
+sbp$exposure[str_sub(sbp$model,-5,-1)=="never"]<-5
+sbp$exposure[str_sub(sbp$model,-3,-1)=="all"]<-7
 
-f<-ggplot(sbp,aes(x=exposure,y=sbp,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=sbp-1.96*se,ymax=sbp+1.96*se),width=0.1,position=pd,size=1)+
+f<-ggplot(sbp,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("F. mean difference in SBP (mmHg)")+
@@ -182,11 +241,21 @@ f<-ggplot(sbp,aes(x=exposure,y=sbp,shape=factor(supp),colour=factor(supp)))+
 f
 ############################################################################################################
 #DBP
-dbp<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/dbp.csv',sep=''), sep=',')
+dbp<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/dbp.csv',sep=''), sep=',',header = FALSE)
 head(dbp)
+colnames(dbp)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+dbp$supp[substring(dbp$model,1,8)=="mumsmoke"]<-2
+dbp$supp[substring(dbp$model,1,11)=="mumnonsmoke"]<-1
+##G1 current smoker=1, G1 former smoker=3, G1 never smoker=5, G1 all participants=7
+dbp$exposure[str_sub(dbp$model,-7,-1)=="current"]<-1
+dbp$exposure[str_sub(dbp$model,-6,-1)=="former"]<-3
+dbp$exposure[str_sub(dbp$model,-5,-1)=="never"]<-5
+dbp$exposure[str_sub(dbp$model,-3,-1)=="all"]<-7
 
-g<-ggplot(dbp,aes(x=exposure,y=dbp,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=dbp-1.96*se,ymax=dbp+1.96*se),width=0.1,position=pd,size=1)+
+g<-ggplot(dbp,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("G. mean difference in DBP (mmHg)")+
@@ -211,11 +280,20 @@ g
 ############################################################################################################
 #menarche
 #ever smoker vs never smoker in UKBB participants
-menarche<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/menarche_ever_never.csv',sep=''), sep=',')
+menarche<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/menarche_ever_never.csv',sep=''), sep=',',header = FALSE)
 head(menarche)
+colnames(menarche)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+menarche$supp[substring(menarche$model,1,8)=="mumsmoke"]<-2
+menarche$supp[substring(menarche$model,1,11)=="mumnonsmoke"]<-1
+##G1 ever smoker=1, G1 never smoker=3, G1 all participants=5
+menarche$exposure[str_sub(menarche$model,-9,-1)=="childever"]<-1
+menarche$exposure[str_sub(menarche$model,-10,-1)=="childnever"]<-3
+menarche$exposure[str_sub(menarche$model,-8,-1)=="childall"]<-5
 
-h<-ggplot(menarche,aes(x=exposure,y=menarche,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=menarche-1.96*se,ymax=menarche+1.96*se),width=0.1,position=pd,size=1)+
+h<-ggplot(menarche,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("H. mean difference in age at menarche (year)")+
@@ -239,11 +317,20 @@ h<-ggplot(menarche,aes(x=exposure,y=menarche,shape=factor(supp),colour=factor(su
 h
 ############################################################################################################
 #education
-edu<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/eduyr_ever_never.csv',sep=''), sep=',')
+edu<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/eduyr_ever_never.csv',sep=''), sep=',',header = FALSE)
 head(edu)
+colnames(edu)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+edu$supp[substring(edu$model,1,8)=="mumsmoke"]<-2
+edu$supp[substring(edu$model,1,11)=="mumnonsmoke"]<-1
+##G1 ever smoker=1, G1 never smoker=3, G1 all participants=5
+edu$exposure[str_sub(edu$model,-9,-1)=="childever"]<-1
+edu$exposure[str_sub(edu$model,-10,-1)=="childnever"]<-3
+edu$exposure[str_sub(edu$model,-8,-1)=="childall"]<-5
 
-i<-ggplot(edu,aes(x=exposure,y=eduyr,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=eduyr-1.96*se,ymax=eduyr+1.96*se),width=0.1,position=pd,size=1)+
+i<-ggplot(edu,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("I. mean difference in years of education")+
@@ -266,11 +353,21 @@ i<-ggplot(edu,aes(x=exposure,y=eduyr,shape=factor(supp),colour=factor(supp)))+
 i
 ############################################################################################################
 #fluid intelligence score
-iq<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/iq.csv',sep=''), sep=',')
+iq<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/iq.csv',sep=''), sep=',',header = FALSE)
 head(iq)
+colnames(iq)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+iq$supp[substring(iq$model,1,8)=="mumsmoke"]<-2
+iq$supp[substring(iq$model,1,11)=="mumnonsmoke"]<-1
+##G1 current smoker=1, G1 former smoker=3, G1 never smoker=5, G1 all participants=7
+iq$exposure[str_sub(iq$model,-7,-1)=="current"]<-1
+iq$exposure[str_sub(iq$model,-6,-1)=="former"]<-3
+iq$exposure[str_sub(iq$model,-5,-1)=="never"]<-5
+iq$exposure[str_sub(iq$model,-3,-1)=="all"]<-7
 
-j<-ggplot(iq,aes(x=exposure,y=iq,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=iq-1.96*se,ymax=iq+1.96*se),width=0.1,position=pd,size=1)+
+j<-ggplot(iq,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("J. mean difference in fluid intelligence score")+
@@ -294,11 +391,21 @@ j<-ggplot(iq,aes(x=exposure,y=iq,shape=factor(supp),colour=factor(supp)))+
 j
 ############################################################################################################
 #depression/anxiety
-depress<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/depression.csv',sep=''), sep=',')
+depress<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/depression.csv',sep=''), sep=',',header = FALSE)
 head(depress)
+colnames(depress)<-c("model","logor","se","loglci","loguci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+depress$supp[substring(depress$model,1,8)=="mumsmoke"]<-2
+depress$supp[substring(depress$model,1,11)=="mumnonsmoke"]<-1
+##G1 current smoker=1, G1 former smoker=3, G1 never smoker=5, G1 all participants=7
+depress$exposure[str_sub(depress$model,-7,-1)=="current"]<-1
+depress$exposure[str_sub(depress$model,-6,-1)=="former"]<-3
+depress$exposure[str_sub(depress$model,-5,-1)=="never"]<-5
+depress$exposure[str_sub(depress$model,-3,-1)=="all"]<-7
 
-k<-ggplot(depress,aes(x=exposure,y=exp(depress),shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=exp(depress-1.96*se),ymax=exp(depress+1.96*se)),width=0.1,position=pd,size=1)+
+k<-ggplot(depress,aes(x=exposure,y=exp(logor),shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=exp(loglci),ymax=exp(loguci)),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("K. Odds ratio of depression/anxiety")+
@@ -321,12 +428,21 @@ k<-ggplot(depress,aes(x=exposure,y=exp(depress),shape=factor(supp),colour=factor
   coord_flip()
 k
 ############################################################################################################
-well<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/wellbeing.csv',sep=''), sep=',')
-head(well)
-
 #Happiness
-l<-ggplot(well,aes(x=exposure,y=exp(happy),shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=exp(happy-1.96*happy_se),ymax=exp(happy+1.96*happy_se)),width=0.1,position=pd,size=1)+
+well<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/wellbeing.csv',sep=''), sep=',',header = FALSE)
+head(well)
+colnames(well)<-c("model","logor","se","loglci","loguci")
+#add indices to plot
+##G0 smoker=2, G0 non-smoker=1
+well$supp[substring(well$model,1,8)=="mumsmoke"]<-2
+well$supp[substring(well$model,1,11)=="mumnonsmoke"]<-1
+##G1 ever smoker=1, G1 never smoker=3, G1 all participants=5
+well$exposure[str_sub(well$model,-9,-1)=="childever"]<-1
+well$exposure[str_sub(well$model,-10,-1)=="childnever"]<-3
+well$exposure[str_sub(well$model,-8,-1)=="childall"]<-5
+
+l<-ggplot(well,aes(x=exposure,y=exp(logor),shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=exp(loglci),ymax=exp(loguci)),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("L. Odds ratio of happiness")+

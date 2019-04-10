@@ -140,189 +140,104 @@ require(reshape2)
 ##################################################################################################
 ##################################################################################################
 #observarional analyses, G0 smoking status~other variables
+#calculate loglci & loguci manually due to confint is very slow
 ob$smoke[ob$smoke<0]<-NA
 ob$smoke[ob$smoke==2]<-1
+#function, extract beta/OR, lci, uci and pvalue
+observational <- function(fit,outcomename,linearmodel) {
+  sumx = summary(fit)
+  if(linearmodel=="linear"){
+    beta = sumx$coefficients["ob$mumsmoke","Estimate"]
+    pvalue = sumx$coefficients["ob$mumsmoke","Pr(>|t|)"]
+    cis = confint(fit, level=0.95)
+    lower = cis["ob$mumsmoke", "2.5 %"]
+    upper = cis["ob$mumsmoke", "97.5 %"]
+    write.table(cbind(outcomename,beta,lower,upper,pvalue),file=paste(Sys.getenv('Myresults'),'mini project3_plot/observational.csv',sep=''), append=TRUE, quote=FALSE, sep=',',row.names=FALSE, col.names=FALSE)
+  }else{
+    if(linearmodel=="logistic"){
+      logor = sumx$coefficients["ob$mumsmoke","Estimate"]
+      se = sumx$coefficients["ob$mumsmoke","Std. Error"]
+      pvalue = sumx$coefficients["ob$mumsmoke","Pr(>|z|)"]
+      lower = exp(logor-1.96*se)
+      upper = exp(logor+1.96*se)
+      write.table(cbind(outcomename,exp(or),lower,upper,pvalue),file=paste(Sys.getenv('Myresults'),'mini project3_plot/observational.csv',sep=''), append=TRUE, quote=FALSE, sep=',',row.names=FALSE, col.names=FALSE)
+    }else{
+      logor = sumx$coefficients["ob$mumsmoke","Value"]
+      se = sumx$coefficients["ob$mumsmoke","Std. Error"]
+      pvalue = pnorm(abs(coef(sumx)['ob$mumsmoke', "t value"]), lower.tail = FALSE) * 2
+      lower = exp(logor-1.96*se)
+      upper = exp(logor+1.96*se)
+      write.table(cbind(outcomename,exp(logor),lower,upper,pvalue),file=paste(Sys.getenv('Myresults'),'mini project3_plot/observational.csv',sep=''), append=TRUE, quote=FALSE, sep=',',row.names=FALSE, col.names=FALSE)
+    }}
+}
 #G1 smoking status
 g1smoke<-glm(ob$smoke~ob$mumsmoke,binomial(link = "logit"))
+observational(g1smoke,"G1smoking_model1","logistic")
 g1smoke_p<-glm(ob$smoke_preg~ob$mumsmoke,binomial(link = "logit"))
+observational(g1smoke_p,"G1pregsmoking_model1","logistic")
 #g1 birthweight
 g1bw<-lm(ob$bw~ob$mumsmoke+ob$age)
+observational(g1bw,"G1bw_model1","linear")
 g1bw_a<-lm(ob$bw~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation)
+observational(g1bw_a,"G1bw_model2","linear")
 #g1 height
 height<-lm(ob$height~ob$mumsmoke+ob$age)
+observational(height,"G1height_model1","linear")
 height_a<-lm(ob$height~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation)
+observational(height_a,"G1height_model2","linear")
 #g1 bmi
 bmi<-lm(ob$bmi~ob$mumsmoke+ob$age)
+observational(bmi,"G1bmi_model1","linear")
 bmi_a<-lm(ob$bmi~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation)
+observational(bmi_a,"G1bmi_model2","linear")
 #g1 lung function
 fev1<-lm(ob$fev1_best~ob$mumsmoke+ob$age)
+observational(fev1,"G1fev1_model1","linear")
 fev1_a<-lm(ob$fev1_best~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation)
+observational(fev1_a,"G1fev1_model2","linear")
 fvc<-lm(ob$fvc_best~ob$mumsmoke+ob$age)
+observational(fvc,"G1fvc_model1","linear")
 fvc_a<-lm(ob$fvc_best~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation)
+observational(fvc_a,"G1fvc_model2","linear")
 #g1 asthma
 asthma<-glm(as.factor(ob$asthma_d)~ob$mumsmoke+ob$age,binomial(link = "logit"))
+observational(asthma,"G1asthma_model1","logistic")
 asthma_a<-glm(as.factor(ob$asthma_d)~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation,binomial(link = "logit"))
+observational(asthma_a,"G1asthma_model2","logistic")
 #g1 blood pressure
 sbp<-lm(ob$sbp~ob$mumsmoke+ob$age)
+observational(sbp,"G1sbp_model1","linear")
 sbp_a<-lm(ob$sbp~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation)
+observational(sbp_a,"G1sbp_model2","linear")
 dbp<-lm(ob$dbp~ob$mumsmoke+ob$age)
+observational(dbp,"G1dbp_model1","linear")
 dbp_a<-lm(ob$dbp~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation)
+observational(dbp_a,"G1dbp_model2","linear")
 #g1 menarche
 menarche<-lm(ob$menarche~ob$mumsmoke+ob$age)
+observational(menarche,"G1menarche_model1","linear")
 menarche_a<-lm(ob$menarche~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation)
+observational(menarche_a,"G1menarche_model2","linear")
 #g1 edu
 edu<-lm(ob$eduyr~ob$mumsmoke+ob$age)
+observational(edu,"G1edu_model1","linear")
 #g1 iq
 iq<-lm(ob$iq~ob$mumsmoke+ob$age)
+observational(iq,"G1iq_model1","linear")
 iq_a<-lm(ob$iq~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation)
+observational(iq_a,"G1iq_model2","linear")
 #g1 depression/anxiety
 depress<-glm(as.factor(ob$diag_sum)~ob$mumsmoke+ob$age,binomial(link = "logit"))
+observational(depress,"G1depress_model1","logistic")
 depress_a<-glm(as.factor(ob$diag_sum)~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation,binomial(link = "logit"))
+observational(depress_a,"G1depress_model2","logistic")
 #g1 happiness
 happy<-polr(as.factor(ob$happy)~ob$mumsmoke+ob$age, Hess=TRUE)
+observational(happy,"G1wellbeing_model1","ordinal")
 happy_a<-polr(as.factor(ob$happy)~ob$mumsmoke+ob$age+ob$smoke+ob$eduyr+ob$deprivation, Hess=TRUE)
+observational(happy_a,"G1wellbeing_model2","ordinal")
 #g2 birthweight
 g2bw<-lm(ob$bwchild_use~ob$mumsmoke+ob$age)
+observational(g2bw,"G2bw_model1","linear")
 g2bw_a<-lm(ob$bwchild_use~ob$mumsmoke+ob$age+ob$smoke_preg+ob$eduyr+ob$deprivation)
-##################################################################################################
-##################################################################################################
-#save results in a file
-#creat a matrix for results
-vars<-c("g1smoke", "g1bw", "g1height", "g1bmi", "g1fev1", "g1fvc","g1asthma","g1sbp","g1dbp","g1menarche","g1edu","g1iq","g1depress","g1happy","g2bw")
-col.names <- c("model1_beta","model1_lci","model1_uci","model1_p","model2_beta","model2_lci","model2_uci","model2_p")
-covar <- matrix(, ncol=8, nrow=length(vars))
-dimnames(covar) <- list(vars, col.names)
-
-#extract beta 
-covar[1,1] <- exp(g1smoke$coefficients["ob$mumsmoke"])
-covar[2,1] <- g1bw$coefficients['ob$mumsmoke']
-covar[3,1] <- height$coefficients['ob$mumsmoke']
-covar[4,1] <- bmi$coefficients['ob$mumsmoke']
-covar[5,1] <- fev1$coefficients['ob$mumsmoke']
-covar[6,1] <- fvc$coefficients['ob$mumsmoke']
-covar[7,1] <- exp(asthma$coefficients['ob$mumsmoke'])
-covar[8,1] <- sbp$coefficients['ob$mumsmoke']
-covar[9,1] <- dbp$coefficients['ob$mumsmoke']
-covar[10,1] <- menarche$coefficients['ob$mumsmoke']
-covar[11,1] <- edu$coefficients['ob$mumsmoke']
-covar[12,1] <- iq$coefficients['ob$mumsmoke']
-covar[13,1] <- exp(depress$coefficients['ob$mumsmoke'])
-covar[14,1] <- exp(happy$coefficients['ob$mumsmoke'])
-covar[15,1] <- g2bw$coefficients['ob$mumsmoke']
-
-#extract lci
-covar[1,2] <- exp(g1smoke$coefficients["ob$mumsmoke"]-1.96*coef(summary(g1smoke))['ob$mumsmoke', "Std. Error"])
-covar[2,2] <- g1bw$coefficients['ob$mumsmoke']-1.96*coef(summary(g1bw))['ob$mumsmoke', "Std. Error"]
-covar[3,2] <- height$coefficients['ob$mumsmoke']-1.96*coef(summary(height))['ob$mumsmoke', "Std. Error"]
-covar[4,2] <- bmi$coefficients['ob$mumsmoke']-1.96*coef(summary(bmi))['ob$mumsmoke', "Std. Error"]
-covar[5,2] <- fev1$coefficients['ob$mumsmoke']-1.96*coef(summary(fev1))['ob$mumsmoke', "Std. Error"]
-covar[6,2] <- fvc$coefficients['ob$mumsmoke']-1.96*coef(summary(fvc))['ob$mumsmoke', "Std. Error"]
-covar[7,2] <- exp(asthma$coefficients['ob$mumsmoke']-1.96*coef(summary(asthma))['ob$mumsmoke', "Std. Error"])
-covar[8,2] <- sbp$coefficients['ob$mumsmoke']-1.96*coef(summary(sbp))['ob$mumsmoke', "Std. Error"]
-covar[9,2] <- dbp$coefficients['ob$mumsmoke']-1.96*coef(summary(dbp))['ob$mumsmoke', "Std. Error"]
-covar[10,2] <- menarche$coefficients['ob$mumsmoke']-1.96*coef(summary(menarche))['ob$mumsmoke', "Std. Error"]
-covar[11,2] <- edu$coefficients['ob$mumsmoke']-1.96*coef(summary(edu))['ob$mumsmoke', "Std. Error"]
-covar[12,2] <- iq$coefficients['ob$mumsmoke']-1.96*coef(summary(iq))['ob$mumsmoke', "Std. Error"]
-covar[13,2] <- exp(depress$coefficients['ob$mumsmoke']-1.96*coef(summary(depress))['ob$mumsmoke', "Std. Error"])
-covar[14,2] <- exp(happy$coefficients['ob$mumsmoke']-1.96*coef(summary(happy))['ob$mumsmoke', "Std. Error"])
-covar[15,2] <- g2bw$coefficients['ob$mumsmoke']-1.96*coef(summary(g2bw))['ob$mumsmoke', "Std. Error"]
-
-#extract uci
-covar[1,3] <- exp(g1smoke$coefficients["ob$mumsmoke"]+1.96*coef(summary(g1smoke))['ob$mumsmoke', "Std. Error"])
-covar[2,3] <- g1bw$coefficients['ob$mumsmoke']+1.96*coef(summary(g1bw))['ob$mumsmoke', "Std. Error"]
-covar[3,3] <- height$coefficients['ob$mumsmoke']+1.96*coef(summary(height))['ob$mumsmoke', "Std. Error"]
-covar[4,3] <- bmi$coefficients['ob$mumsmoke']+1.96*coef(summary(bmi))['ob$mumsmoke', "Std. Error"]
-covar[5,3] <- fev1$coefficients['ob$mumsmoke']+1.96*coef(summary(fev1))['ob$mumsmoke', "Std. Error"]
-covar[6,3] <- fvc$coefficients['ob$mumsmoke']+1.96*coef(summary(fvc))['ob$mumsmoke', "Std. Error"]
-covar[7,3] <- exp(asthma$coefficients['ob$mumsmoke']+1.96*coef(summary(asthma))['ob$mumsmoke', "Std. Error"])
-covar[8,3] <- sbp$coefficients['ob$mumsmoke']+1.96*coef(summary(sbp))['ob$mumsmoke', "Std. Error"]
-covar[9,3] <- dbp$coefficients['ob$mumsmoke']+1.96*coef(summary(dbp))['ob$mumsmoke', "Std. Error"]
-covar[10,3] <- menarche$coefficients['ob$mumsmoke']+1.96*coef(summary(menarche))['ob$mumsmoke', "Std. Error"]
-covar[11,3] <- edu$coefficients['ob$mumsmoke']+1.96*coef(summary(edu))['ob$mumsmoke', "Std. Error"]
-covar[12,3] <- iq$coefficients['ob$mumsmoke']+1.96*coef(summary(iq))['ob$mumsmoke', "Std. Error"]
-covar[13,3] <- exp(depress$coefficients['ob$mumsmoke']+1.96*coef(summary(depress))['ob$mumsmoke', "Std. Error"])
-covar[14,3] <- exp(happy$coefficients['ob$mumsmoke']+1.96*coef(summary(happy))['ob$mumsmoke', "Std. Error"])
-covar[15,3] <- g2bw$coefficients['ob$mumsmoke']+1.96*coef(summary(g2bw))['ob$mumsmoke', "Std. Error"]
-
-#extract p-value
-covar[1,4] <- coef(summary(g1smoke))['ob$mumsmoke', "Pr(>|z|)"]
-covar[2,4] <- coef(summary(g1bw))['ob$mumsmoke', "Pr(>|t|)"]
-covar[3,4] <- coef(summary(height))['ob$mumsmoke', "Pr(>|t|)"]
-covar[4,4] <- coef(summary(bmi))['ob$mumsmoke', "Pr(>|t|)"]
-covar[5,4] <- coef(summary(fev1))['ob$mumsmoke', "Pr(>|t|)"]
-covar[6,4] <- coef(summary(fvc))['ob$mumsmoke', "Pr(>|t|)"]
-covar[7,4] <- coef(summary(asthma))['ob$mumsmoke', "Pr(>|z|)"]
-covar[8,4] <- coef(summary(sbp))['ob$mumsmoke', "Pr(>|t|)"]
-covar[9,4] <- coef(summary(dbp))['ob$mumsmoke', "Pr(>|t|)"]
-covar[10,4] <- coef(summary(menarche))['ob$mumsmoke', "Pr(>|t|)"]
-covar[11,4] <- coef(summary(edu))['ob$mumsmoke', "Pr(>|t|)"]
-covar[12,4] <- coef(summary(iq))['ob$mumsmoke', "Pr(>|t|)"]
-covar[13,4] <- coef(summary(depress))['ob$mumsmoke', "Pr(>|z|)"]
-covar[14,4] <- pnorm(abs(coef(summary(happy))['ob$mumsmoke', "t value"]), lower.tail = FALSE) * 2
-covar[15,4] <- coef(summary(g2bw))['ob$mumsmoke', "Pr(>|t|)"]
-
-#extract beta, adjust model
-covar[1,5] <- exp(g1smoke_p$coefficients["ob$mumsmoke"])
-covar[2,5] <- g1bw_a$coefficients['ob$mumsmoke']
-covar[3,5] <- height_a$coefficients['ob$mumsmoke']
-covar[4,5] <- bmi_a$coefficients['ob$mumsmoke']
-covar[5,5] <- fev1_a$coefficients['ob$mumsmoke']
-covar[6,5] <- fvc_a$coefficients['ob$mumsmoke']
-covar[7,5] <- exp(asthma_a$coefficients['ob$mumsmoke'])
-covar[8,5] <- sbp_a$coefficients['ob$mumsmoke']
-covar[9,5] <- dbp_a$coefficients['ob$mumsmoke']
-covar[10,5] <- menarche_a$coefficients['ob$mumsmoke']
-covar[12,5] <- iq_a$coefficients['ob$mumsmoke']
-covar[13,5] <- exp(depress_a$coefficients['ob$mumsmoke'])
-covar[14,5] <- exp(happy_a$coefficients['ob$mumsmoke'])
-covar[15,5] <- g2bw_a$coefficients['ob$mumsmoke']
-
-#extract lci
-covar[1,6] <- exp(g1smoke_p$coefficients["ob$mumsmoke"]-1.96*coef(summary(g1smoke_p))['ob$mumsmoke', "Std. Error"])
-covar[2,6] <- g1bw_a$coefficients['ob$mumsmoke']-1.96*coef(summary(g1bw_a))['ob$mumsmoke', "Std. Error"]
-covar[3,6] <- height_a$coefficients['ob$mumsmoke']-1.96*coef(summary(height_a))['ob$mumsmoke', "Std. Error"]
-covar[4,6] <- bmi_a$coefficients['ob$mumsmoke']-1.96*coef(summary(bmi_a))['ob$mumsmoke', "Std. Error"]
-covar[5,6] <- fev1_a$coefficients['ob$mumsmoke']-1.96*coef(summary(fev1_a))['ob$mumsmoke', "Std. Error"]
-covar[6,6] <- fvc_a$coefficients['ob$mumsmoke']-1.96*coef(summary(fvc_a))['ob$mumsmoke', "Std. Error"]
-covar[7,6] <- exp(asthma_a$coefficients['ob$mumsmoke']-1.96*coef(summary(asthma_a))['ob$mumsmoke', "Std. Error"])
-covar[8,6] <- sbp_a$coefficients['ob$mumsmoke']-1.96*coef(summary(sbp_a))['ob$mumsmoke', "Std. Error"]
-covar[9,6] <- dbp_a$coefficients['ob$mumsmoke']-1.96*coef(summary(dbp_a))['ob$mumsmoke', "Std. Error"]
-covar[10,6] <- menarche_a$coefficients['ob$mumsmoke']-1.96*coef(summary(menarche_a))['ob$mumsmoke', "Std. Error"]
-covar[12,6] <- iq_a$coefficients['ob$mumsmoke']-1.96*coef(summary(iq_a))['ob$mumsmoke', "Std. Error"]
-covar[13,6] <- exp(depress_a$coefficients['ob$mumsmoke']-1.96*coef(summary(depress_a))['ob$mumsmoke', "Std. Error"])
-covar[14,6] <- exp(happy_a$coefficients['ob$mumsmoke']-1.96*coef(summary(happy_a))['ob$mumsmoke', "Std. Error"])
-covar[15,6] <- g2bw_a$coefficients['ob$mumsmoke']-1.96*coef(summary(g2bw_a))['ob$mumsmoke', "Std. Error"]
-
-#extract uci
-covar[1,7] <- exp(g1smoke_p$coefficients["ob$mumsmoke"]+1.96*coef(summary(g1smoke_p))['ob$mumsmoke', "Std. Error"])
-covar[2,7] <- g1bw_a$coefficients['ob$mumsmoke']+1.96*coef(summary(g1bw_a))['ob$mumsmoke', "Std. Error"]
-covar[3,7] <- height_a$coefficients['ob$mumsmoke']+1.96*coef(summary(height_a))['ob$mumsmoke', "Std. Error"]
-covar[4,7] <- bmi_a$coefficients['ob$mumsmoke']+1.96*coef(summary(bmi_a))['ob$mumsmoke', "Std. Error"]
-covar[5,7] <- fev1_a$coefficients['ob$mumsmoke']+1.96*coef(summary(fev1_a))['ob$mumsmoke', "Std. Error"]
-covar[6,7] <- fvc_a$coefficients['ob$mumsmoke']+1.96*coef(summary(fvc_a))['ob$mumsmoke', "Std. Error"]
-covar[7,7] <- exp(asthma_a$coefficients['ob$mumsmoke']+1.96*coef(summary(asthma_a))['ob$mumsmoke', "Std. Error"])
-covar[8,7] <- sbp_a$coefficients['ob$mumsmoke']+1.96*coef(summary(sbp_a))['ob$mumsmoke', "Std. Error"]
-covar[9,7] <- dbp_a$coefficients['ob$mumsmoke']+1.96*coef(summary(dbp_a))['ob$mumsmoke', "Std. Error"]
-covar[10,7] <- menarche_a$coefficients['ob$mumsmoke']+1.96*coef(summary(menarche_a))['ob$mumsmoke', "Std. Error"]
-covar[12,7] <- iq_a$coefficients['ob$mumsmoke']+1.96*coef(summary(iq_a))['ob$mumsmoke', "Std. Error"]
-covar[13,7] <- exp(depress_a$coefficients['ob$mumsmoke']+1.96*coef(summary(depress_a))['ob$mumsmoke', "Std. Error"])
-covar[14,7] <- exp(happy_a$coefficients['ob$mumsmoke']+1.96*coef(summary(happy_a))['ob$mumsmoke', "Std. Error"])
-covar[15,7] <- g2bw_a$coefficients['ob$mumsmoke']+1.96*coef(summary(g2bw_a))['ob$mumsmoke', "Std. Error"]
-
-#extract p-value
-covar[1,8] <- coef(summary(g1smoke_p))['ob$mumsmoke', "Pr(>|z|)"]
-covar[2,8] <- coef(summary(g1bw_a))['ob$mumsmoke', "Pr(>|t|)"]
-covar[3,8] <- coef(summary(height_a))['ob$mumsmoke', "Pr(>|t|)"]
-covar[4,8] <- coef(summary(bmi_a))['ob$mumsmoke', "Pr(>|t|)"]
-covar[5,8] <- coef(summary(fev1_a))['ob$mumsmoke', "Pr(>|t|)"]
-covar[6,8] <- coef(summary(fvc_a))['ob$mumsmoke', "Pr(>|t|)"]
-covar[7,8] <- coef(summary(asthma_a))['ob$mumsmoke', "Pr(>|z|)"]
-covar[8,8] <- coef(summary(sbp_a))['ob$mumsmoke', "Pr(>|t|)"]
-covar[9,8] <- coef(summary(dbp_a))['ob$mumsmoke', "Pr(>|t|)"]
-covar[10,8] <- coef(summary(menarche_a))['ob$mumsmoke', "Pr(>|t|)"]
-covar[12,8] <- coef(summary(iq_a))['ob$mumsmoke', "Pr(>|t|)"]
-covar[13,8] <- coef(summary(depress_a))['ob$mumsmoke', "Pr(>|z|)"]
-covar[14,8] <- pnorm(abs(coef(summary(happy_a))['ob$mumsmoke', "t value"]), lower.tail = FALSE) * 2
-covar[15,8] <- coef(summary(g2bw_a))['ob$mumsmoke', "Pr(>|t|)"]
-
-write.csv(covar, file=paste(Sys.getenv('Myresults'),'mini project3_plot/observational.csv',sep=''))
+observational(g2bw_a,"G2bw_model2","linear")

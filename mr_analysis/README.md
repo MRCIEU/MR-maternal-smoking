@@ -35,7 +35,7 @@ See [transgeneration](https://github.com/MRCIEU/MR-maternal-smoking/tree/master/
 
 ### 4. Associations of rs16969968 with potential confounders
 
-Potential confounders include **age**, **age at first live birth**(female only), **deprivation index**, [**education**](https://github.com/MRCIEU/MR-maternal-smoking/blob/master/mr_analysis/offspring_later/i_education.R), **income** and **sex**. Here we use **age** as and example.
+Potential confounders include **age**, **age at first live birth**(female only), **deprivation index**, [**education**](https://github.com/MRCIEU/MR-maternal-smoking/blob/master/mr_analysis/offspring_later/i_education.R), **income** and **sex**.
 
 ```
 source ('confounder.R') 

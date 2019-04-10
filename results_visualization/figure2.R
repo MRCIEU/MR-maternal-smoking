@@ -9,17 +9,28 @@ rm(list = ls())
 
 #package
 require(ggplot2)
+require(stringr)
 
 #input data
-bw<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/bw_ever_never.csv',sep=''), sep=',')
+bw<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/bw_ever_never.csv',sep=''), sep=',',header = FALSE)
 head(bw)
+colnames(bw)<-c("model","beta","se","lci","uci")
+
+#add indices to plot
+##crude model=1, adjust model=2
+bw$supp[substring(bw$model,1,5)=="crude"]<-1
+bw$supp[substring(bw$model,1,6)=="adjust"]<-2
+##non-smoker=1,smoker=3,all participants=5
+bw$exposure[str_sub(bw$model,-8,-1)=="nonsmoke"]<-1
+bw$exposure[str_sub(bw$model,-6,-1)=="_smoke"]<-3
+bw$exposure[str_sub(bw$model,-3,-1)=="all"]<-5
 
 #Dodge overlapping objects side-to-side
 pd<-position_dodge(0.5)
 
 #Draw the figure
-a<-ggplot(bw,aes(x=exposure,y=bw,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=bw-1.96*se,ymax=bw+1.96*se),width=0.1,position=pd,size=1)+
+a<-ggplot(bw,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("mean difference in birthweight (kg)")+

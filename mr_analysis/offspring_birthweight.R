@@ -64,54 +64,32 @@ aggregate(proof,by=list(proof$sex),FUN = mean,na.rm=TRUE)
 aggregate(proof,by=list(proof$sex),FUN = sd,na.rm=TRUE)
 table(proof$mumsmoke,proof$sex)
 
+#function, extract beta, se, lci and uci
+linearregression <- function(database,modelname) {
+  if(substring(modelname,1,5)=="crude"){
+    fit = lm(database[,"bw"] ~ SNP1,data=database)
+  }else{
+    fit = lm(database[,"bw"] ~., data=database[,c("SNP1","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")]) 
+  }
+  sumx = summary(fit)
+  beta = sumx$coefficients["SNP1","Estimate"]
+  se = sumx$coefficients["SNP1","Std. Error"]
+  cis = confint(fit, level=0.95)
+  lower = cis["SNP1", "2.5 %"]
+  upper = cis["SNP1", "97.5 %"]
+  write.table(cbind(modelname,beta,se,lower,upper),file=paste(Sys.getenv('Myresults'),'mini project3_plot/bw_ever_never.csv',sep=''), append=TRUE, quote=FALSE, sep=',',row.names=FALSE, col.names=FALSE)
+}
+
 ##in all participants
-est_all_cru<-lm(proof$bw~proof$SNP1)
-est_all_adj<-lm(proof$bw~.,data=proof[,c("SNP1","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
+linearregression(proof,"crude_all")
+linearregression(proof,"adjust_all")
 
 #in non-smoker(mum)
 proof_nonsmoke<-proof[which(as.numeric(proof$mumsmoke)==0),]
-summary(proof_nonsmoke)
-est_nonsmoke_cru<-lm(proof_nonsmoke$bw~proof_nonsmoke$SNP1)
-est_nonsmoke_adj<-lm(proof_nonsmoke$bw~.,data=proof_nonsmoke[,c("SNP1","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
+linearregression(proof_nonsmoke,"crude_nonsmoke")
+linearregression(proof_nonsmoke,"adjust_nonsmoke")
 
 #in smoker(mum)
 proof_smoke<-proof[which(as.numeric(proof$mumsmoke)==1),]
-summary(proof_smoke)
-est_smoke_cru<-lm(proof_smoke$bw~proof_smoke$SNP1)
-est_smoke_adj<-lm(proof_smoke$bw~.,data=proof_smoke[,c("SNP1","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
-
-###################################################################################################
-###################################################################################################
-#save results in a file for plot
-###################################################################################################
-###################################################################################################
-#creat a matrix for results
-vars<-c("adjust-no","adjust-yes","adjust-all","crude-no","crude-yes","crude-all")
-col.names <- c("supp","exposure","bw","se")
-covar <- matrix(, ncol=4, nrow=length(vars))
-dimnames(covar) <- list(vars, col.names)
-
-#in the 1st colomn of matrix("supp"), "1" means crude model, and "2" means adjust model 
-covar[,1] <- c(2,2,2,1,1,1)
-
-#in the 2nd colomn of matrix("exposure"), "1" = subgroup of "G0 smoking=NO", "3" = subgroup of "G0 smoking=YES", "5" = all participants
-covar[,2] <- c(1,3,5,1,3,5)
-
-#extract beta
-covar[1,3] <- est_nonsmoke_adj$coefficients['SNP1']
-covar[2,3] <- est_smoke_adj$coefficients['SNP1']
-covar[3,3] <- est_all_adj$coefficients['SNP1']
-covar[4,3] <- est_nonsmoke_cru$coefficients['SNP1']
-covar[5,3] <- est_smoke_cru$coefficients['SNP1']
-covar[6,3] <- est_all_cru$coefficients['SNP1']
-
-#extract SE
-covar[1,4] <- coef(summary(est_nonsmoke_adj))['SNP1', "Std. Error"]
-covar[2,4] <- coef(summary(est_smoke_adj))['SNP1', "Std. Error"]
-covar[3,4] <- coef(summary(est_all_adj))['SNP1', "Std. Error"]
-covar[4,4] <- coef(summary(est_nonsmoke_cru))['SNP1', "Std. Error"]
-covar[5,4] <- coef(summary(est_smoke_cru))['SNP1', "Std. Error"]
-covar[6,4] <- coef(summary(est_all_cru))['SNP1', "Std. Error"]
-
-
-write.csv(covar,file=paste(Sys.getenv('Myresults'),'mini project3_plot/bw_ever_never.csv',sep=''))
+linearregression(proof_smoke,"crude_smoke")
+linearregression(proof_smoke,"adjust_smoke")

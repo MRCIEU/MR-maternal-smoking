@@ -9,17 +9,29 @@ rm(list = ls())
 
 #package
 require(ggplot2)
+require(stringr)
 
 ##input data
-bw_g<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/bw_grandmum_grandchild.csv',sep=''), sep=',')
+bw_g<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/bw_grandmum_grandchild.csv',sep=''), sep=',',header = FALSE)
 head(bw_g)
+colnames(bw_g)<-c("model","beta","se","lci","uci")
+
+#add indices to plot
+##G0 all participants=1, G0 nonsmokers=2, G0 smokers=3
+bw_g$supp[substring(bw_g$model,1,5)=="g0all"]<-1
+bw_g$supp[substring(bw_g$model,1,10)=="g0nonsmoke"]<-2
+bw_g$supp[substring(bw_g$model,1,7)=="g0smoke"]<-3
+##G1 smoker=1, G1 nonsmoker=3, G1 all participants=5
+bw_g$exposure[str_sub(bw_g$model,-7,-1)=="g1smoke"]<-1
+bw_g$exposure[str_sub(bw_g$model,-10,-1)=="g1nonsmoke"]<-3
+bw_g$exposure[str_sub(bw_g$model,-5,-1)=="g1all"]<-5
 
 #Dodge overlapping objects side-to-side
 pd<-position_dodge(0.5)
 
 #Draw the figure
-a<-ggplot(bw_g,aes(x=exposure,y=bw,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=bw-1.96*se,ymax=bw+1.96*se),width=0.1,position=pd,size=1)+
+a<-ggplot(bw_g,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("mean difference in G2 birthweight (kg)")+

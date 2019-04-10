@@ -53,77 +53,45 @@ table(dep_use$diag_sum,dep_use$sex)
 #the following analyses use dep_use database
 ###################################################################################################
 ###################################################################################################
+#function, extract logOR, se, loglci and loguci
+#calculate loglci & loguci manually due to confint is very slow
+logisticregression <- function(database,modelname) {
+  fit = glm(database[,"diag_sum"] ~.,binomial(link = "logit"), data=database[,c("SNP1","age","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")]) 
+  sumx = summary(fit)
+  logor = sumx$coefficients["SNP1","Estimate"]
+  se = sumx$coefficients["SNP1","Std. Error"]
+  lower = logor-1.96*se
+  upper = logor+1.96*se
+  write.table(cbind(modelname,logor,se,lower,upper),file=paste(Sys.getenv('Myresults'),'mini project3_plot/depression.csv',sep=''), append=TRUE, quote=FALSE, sep=',',row.names=FALSE, col.names=FALSE)
+}
 #in all participants
 ##subset participants: G0 smoking=No
 mumnonsmoke_allchild<-dep_use[which(dep_use$mumsmoke==0),]
+logisticregression(mumnonsmoke_allchild,"mumnonsmoke_childall")
 ##subset participants: G0 smoking=Yes
 mumsmoke_allchild<-dep_use[which(dep_use$mumsmoke==1),]
-##analysis
-est_mumnonsmoke_allchild<-glm(mumnonsmoke_allchild$diag_sum~.,binomial(link = "logit"),data=mumnonsmoke_allchild[,c("SNP1","age","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
-est_mumsmoke_allchild<-glm(mumsmoke_allchild$diag_sum~.,binomial(link = "logit"),data=mumsmoke_allchild[,c("SNP1","age","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
-
+logisticregression(mumsmoke_allchild,"mumsmoke_childall")
 
 #in non-smoker(G0 & G1)
 nonsmoke<-dep_use[which(dep_use$mumsmoke==0 & dep_use$smoke==0),]
-est_both_nonsmoke<-glm(nonsmoke$diag_sum~.,binomial(link = "logit"),data=nonsmoke[,c("SNP1","age","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
-
+logisticregression(nonsmoke,"mumnonsmoke_childnever")
 
 #G0=smoker, G1=never smoker
 smoke_mum<-dep_use[which(dep_use$mumsmoke==1 & dep_use$smoke==0),]
-est_only_mumsmoke<-glm(smoke_mum$diag_sum~.,binomial(link = "logit"),data=smoke_mum[,c("SNP1","age","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
-
+logisticregression(smoke_mum,"mumsmoke_childnever")
 
 #G0=non-smoker, G1=former smoker
 former_child<-dep_use[which(dep_use$mumsmoke==0 & dep_use$smoke==1),]
-est_only_child_former<-glm(former_child$diag_sum~.,binomial(link = "logit"),data=former_child[,c("SNP1","age","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
-
+logisticregression(former_child,"mumnonsmoke_childformer")
 
 #G0=non-smoker, G1=current smoker
 current_child<-dep_use[which(dep_use$mumsmoke==0 & dep_use$smoke==2),]
-est_only_child_current<-glm(current_child$diag_sum~.,binomial(link = "logit"),data=current_child[,c("SNP1","age","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
-
+logisticregression(current_child,"mumnonsmoke_childcurrent")
 
 #G0=smoker, G1=former smoker
 smoke_both_former<-dep_use[which(dep_use$mumsmoke==1 & dep_use$smoke==1),]
-est_both_former<-glm(smoke_both_former$diag_sum~.,binomial(link = "logit"),data=smoke_both_former[,c("SNP1","age","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
-
+logisticregression(smoke_both_former,"mumsmoke_childformer")
 
 #G0=smoker, G1=current smoker
 smoke_both_current<-dep_use[which(dep_use$mumsmoke==1 & dep_use$smoke==2),]
-est_both_current<-glm(smoke_both_current$diag_sum~.,binomial(link = "logit"),data=smoke_both_current[,c("SNP1","age","sex","pc1","pc2","pc3","pc4","pc5","pc6","pc7","pc8","pc9","pc10")])
-
-
-#save results in a file for plot
-#creat a matrix for results
-vars<-c("mumsmoke_current","mumsmoke_former","mumsmoke_never","mumsmoke_all","mumnot_current","mumnot_former","mumnot_never","mumnot_all")
-col.names <- c("supp","exposure","depress","se")
-covar <- matrix(, ncol=4, nrow=length(vars))
-dimnames(covar) <- list(vars, col.names)
-
-#in the 1st colomn of matrix("supp"), "1" subgroup of "G0 smoking=No", "2" subgroup of "G0 smoking=Yes",
-covar[,1] <- c(2,2,2,2,1,1,1,1)
-
-#in the 2nd colomn of matrix("exposure"), "1" subgroup of current smoker, "3" subgroup of former smoker, "5" subgroup of never smoker, "7" all UKBB participants
-covar[,2] <- c(1,3,5,7,1,3,5,7)
-
-#extract beta 
-covar[1,3] <- est_both_current$coefficients['SNP1']
-covar[2,3] <- est_both_former$coefficients['SNP1']
-covar[3,3] <- est_only_mumsmoke$coefficients['SNP1']
-covar[4,3] <- est_mumsmoke_allchild$coefficients['SNP1']
-covar[5,3] <- est_only_child_current$coefficients['SNP1']
-covar[6,3] <- est_only_child_former$coefficients['SNP1']
-covar[7,3] <- est_both_nonsmoke$coefficients['SNP1']
-covar[8,3] <- est_mumnonsmoke_allchild$coefficients['SNP1']
-
-#extract SE
-covar[1,4] <- coef(summary(est_both_current))['SNP1', "Std. Error"]
-covar[2,4] <- coef(summary(est_both_former))['SNP1', "Std. Error"]
-covar[3,4] <- coef(summary(est_only_mumsmoke))['SNP1', "Std. Error"]
-covar[4,4] <- coef(summary(est_mumsmoke_allchild))['SNP1', "Std. Error"]
-covar[5,4] <- coef(summary(est_only_child_current))['SNP1', "Std. Error"]
-covar[6,4] <- coef(summary(est_only_child_former))['SNP1', "Std. Error"]
-covar[7,4] <- coef(summary(est_both_nonsmoke))['SNP1', "Std. Error"]
-covar[8,4] <- coef(summary(est_mumnonsmoke_allchild))['SNP1', "Std. Error"]
-
-write.csv(covar, file=paste(Sys.getenv('Myresults'),'mini project3_plot/depression.csv',sep=''))
+logisticregression(smoke_both_current,"mumsmoke_childcurrent")

@@ -10,15 +10,25 @@ rm(list = ls())
 
 #package
 require(ggplot2)
+require(stringr)
 
 pd<-position_dodge(0.5)
 
 #ever smoker vs never smoker in UKBB participants, considering age started smoking
-height_age<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/height_age.csv',sep=''), sep=',')
+height_age<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/height_age.csv',sep=''), sep=',',header = FALSE)
 head(height_age)
+colnames(height_age)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 nonsmoker=1, G0 smoker=2
+height_age$supp[substring(height_age$model,1,11)=="mumnonsmoke"]<-1
+height_age$supp[substring(height_age$model,1,8)=="mumsmoke"]<-2
+##G1 ever smoker=1, G1 never smoker=3, G1 all=5
+height_age$exposure[str_sub(height_age$model,-9,-1)=="childever"]<-1
+height_age$exposure[str_sub(height_age$model,-10,-1)=="childnever"]<-3
+height_age$exposure[str_sub(height_age$model,-8,-1)=="childall"]<-5
 
-a<-ggplot(height_age,aes(x=exposure,y=height,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=height-1.96*se,ymax=height+1.96*se),width=0.1,position=pd,size=1)+
+a<-ggplot(height_age,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("mean difference in height (cm)")+
@@ -41,11 +51,20 @@ a<-ggplot(height_age,aes(x=exposure,y=height,shape=factor(supp),colour=factor(su
 a
 
 #ever smoker vs never smoker in UKBB participants, considering age started smoking
-menarche_age<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/menarche_age.csv',sep=''), sep=',')
+menarche_age<-read.csv(paste(Sys.getenv('Myresults'),'mini project3_plot/menarche_age.csv',sep=''), sep=',',header = FALSE)
 head(menarche_age)
+colnames(menarche_age)<-c("model","beta","se","lci","uci")
+#add indices to plot
+##G0 nonsmoker=1, G0 smoker=2
+menarche_age$supp[substring(menarche_age$model,1,11)=="mumnonsmoke"]<-1
+menarche_age$supp[substring(menarche_age$model,1,8)=="mumsmoke"]<-2
+##G1 ever smoker=1, G1 never smoker=3, G1 all=5
+menarche_age$exposure[str_sub(menarche_age$model,-9,-1)=="childever"]<-1
+menarche_age$exposure[str_sub(menarche_age$model,-10,-1)=="childnever"]<-3
+menarche_age$exposure[str_sub(menarche_age$model,-8,-1)=="childall"]<-5
 
-b<-ggplot(menarche_age,aes(x=exposure,y=menarche,shape=factor(supp),colour=factor(supp)))+
-  geom_errorbar(aes(ymin=menarche-1.96*se,ymax=menarche+1.96*se),width=0.1,position=pd,size=1)+
+b<-ggplot(menarche_age,aes(x=exposure,y=beta,shape=factor(supp),colour=factor(supp)))+
+  geom_errorbar(aes(ymin=lci,ymax=uci),width=0.1,position=pd,size=1)+
   geom_point(position=pd,size=3)+
   xlab("")+
   ylab("mean difference in age at menarche (year)")+
