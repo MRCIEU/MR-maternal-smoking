@@ -6,7 +6,7 @@ This repository accompanies the paper:
 
 Yang Q, et al. A proof of principle proxy gene × environment Mendelian randomization study: Testing causal effects of maternal smoking heaviness during pregnancy. bioRxiv (2019).
 
-## Our analyses mainly have 4 steps:
+## Our analyses mainly have 5 steps:
 
 (1) Extract genotype information
 
@@ -15,6 +15,8 @@ Yang Q, et al. A proof of principle proxy gene × environment Mendelian randomiz
 (3) Conduct MR analyses
 
 (4) Visualize MR results
+
+(5) Compare statistical power of G-by-E MR with that of proxy G-by-E MR in the simulation 
 
 ## Set enviromental variables
 
